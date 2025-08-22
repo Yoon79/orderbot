@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">OrderBot</string>
+    <string name="add_item">항목 추가</string>
+    <string name="add">추가</string>
+    <string name="item_hint">항목을 입력하세요</string>
+    <string name="order_list">순서 목록</string>
+    <string name="move_up">위로 이동</string>
+    <string name="move_down">아래로 이동</string>
+    <string name="delete">삭제</string>
+</resources>

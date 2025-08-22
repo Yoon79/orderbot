@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <!-- 순서 번호 -->
+        <TextView
+            android:id="@+id/textViewOrder"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="1"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_color"
+            android:gravity="center"
+            android:background="@drawable/order_number_background" />
+
+        <!-- 항목 텍스트 -->
+        <TextView
+            android:id="@+id/textViewItem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="항목 내용"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp" />
+
+        <!-- 위로 이동 버튼 -->
+        <ImageButton
+            android:id="@+id/buttonMoveUp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_arrow_upward"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/move_up"
+            android:tint="@color/accent_color"
+            android:layout_marginEnd="4dp" />
+
+        <!-- 아래로 이동 버튼 -->
+        <ImageButton
+            android:id="@+id/buttonMoveDown"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_arrow_downward"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/move_down"
+            android:tint="@color/accent_color"
+            android:layout_marginEnd="4dp" />
+
+        <!-- 삭제 버튼 -->
+        <ImageButton
+            android:id="@+id/buttonDelete"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_delete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/delete"
+            android:tint="@color/teal_700" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
