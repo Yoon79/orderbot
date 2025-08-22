@@ -1,24 +1,24 @@
 package com.example.orderbot
 
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
 class OrderAdapter(
     private var items: MutableList<OrderItem>,
-    private val onMoveUp: (Int) -> Unit,
-    private val onMoveDown: (Int) -> Unit,
     private val onDelete: (Int) -> Unit
 ) : RecyclerView.Adapter<OrderAdapter.OrderViewHolder>() {
+
+    private var itemTouchHelper: ItemTouchHelper? = null
 
     class OrderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textViewOrder: TextView = view.findViewById(R.id.textViewOrder)
         val textViewItem: TextView = view.findViewById(R.id.textViewItem)
-        val buttonMoveUp: ImageButton = view.findViewById(R.id.buttonMoveUp)
-        val buttonMoveDown: ImageButton = view.findViewById(R.id.buttonMoveDown)
         val buttonDelete: ImageButton = view.findViewById(R.id.buttonDelete)
     }
 
@@ -31,27 +31,52 @@ class OrderAdapter(
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
         val item = items[position]
         
-        holder.textViewOrder.text = (item.order + 1).toString()
+        // 항상 현재 position을 기준으로 순서 번호 표시 (1부터 시작)
+        // 이렇게 하면 삭제 후에도 항상 1, 2, 3... 순서로 표시됨
+        holder.textViewOrder.text = (position + 1).toString()
         holder.textViewItem.text = item.text
-        
-        // 위로 이동 버튼 (첫 번째 항목이면 비활성화)
-        holder.buttonMoveUp.isEnabled = position > 0
-        holder.buttonMoveUp.alpha = if (position > 0) 1.0f else 0.3f
-        
-        // 아래로 이동 버튼 (마지막 항목이면 비활성화)
-        holder.buttonMoveDown.isEnabled = position < items.size - 1
-        holder.buttonMoveDown.alpha = if (position < items.size - 1) 1.0f else 0.3f
-        
-        holder.buttonMoveUp.setOnClickListener {
-            onMoveUp(position)
-        }
-        
-        holder.buttonMoveDown.setOnClickListener {
-            onMoveDown(position)
-        }
         
         holder.buttonDelete.setOnClickListener {
             onDelete(position)
+        }
+        
+        // 아이템 전체를 터치하면 즉시 드래그 시작 (삭제 버튼 제외)
+        holder.itemView.setOnTouchListener { view, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    // 삭제 버튼이 아닌 다른 영역을 터치했을 때만 드래그 시작
+                    val deleteButton = holder.buttonDelete
+                    val deleteX = deleteButton.x
+                    val deleteY = deleteButton.y
+                    val deleteWidth = deleteButton.width
+                    val deleteHeight = deleteButton.height
+                    
+                    if (event.x < deleteX || event.x > deleteX + deleteWidth ||
+                        event.y < deleteY || event.y > deleteY + deleteHeight) {
+                        itemTouchHelper?.startDrag(holder)
+                        return@setOnTouchListener true
+                    }
+                }
+            }
+            false
+        }
+        
+        // 순서 번호를 터치해도 드래그 시작
+        holder.textViewOrder.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                itemTouchHelper?.startDrag(holder)
+                return@setOnTouchListener true
+            }
+            false
+        }
+        
+        // 텍스트 부분을 터치해도 드래그 시작
+        holder.textViewItem.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                itemTouchHelper?.startDrag(holder)
+                return@setOnTouchListener true
+            }
+            false
         }
     }
 
@@ -64,4 +89,8 @@ class OrderAdapter(
     }
 
     fun getItems(): List<OrderItem> = items.toList()
+    
+    fun setItemTouchHelper(helper: ItemTouchHelper) {
+        this.itemTouchHelper = helper
+    }
 }

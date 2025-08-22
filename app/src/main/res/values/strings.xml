@@ -7,4 +7,5 @@
     <string name="move_up">위로 이동</string>
     <string name="move_down">아래로 이동</string>
     <string name="delete">삭제</string>
+    <string name="drag_hint">항목을 터치하여 위아래로 드래그하여 순서 변경</string>
 </resources>

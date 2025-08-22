@@ -6,14 +6,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/background_color"
-    android:padding="16dp"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="20dp"
+    android:paddingTop="120dp"
     tools:context=".MainActivity">
+
+
 
     <!-- 항목 추가 섹션 -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="24dp"
         app:cardCornerRadius="12dp"
         app:cardElevation="4dp"
         app:cardBackgroundColor="@color/card_color">
@@ -85,6 +90,17 @@
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
                 android:layout_marginBottom="12dp" />
+
+            <!-- 드래그 힌트 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/drag_hint"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="8dp"
+                android:drawableStart="@drawable/ic_arrow_upward"
+                android:drawablePadding="4dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewItems"
