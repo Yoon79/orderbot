@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OrderBot</string>
+    <string name="app_name">순서 reorder</string>
     <string name="add_item">항목 추가</string>
     <string name="add">추가</string>
     <string name="item_hint">항목을 입력하세요</string>
