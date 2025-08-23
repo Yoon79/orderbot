@@ -22,6 +22,9 @@ import android.graphics.Typeface
 import android.app.AlertDialog
 import android.os.Environment
 import androidx.core.content.ContextCompat
+import android.content.SharedPreferences
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class MainActivity : AppCompatActivity() {
     
@@ -35,9 +38,23 @@ class MainActivity : AppCompatActivity() {
     private val items = mutableListOf<OrderItem>()
     private var nextId = 1
     
+    private val PREFS_NAME = "order_prefs"
+    private val KEY_ORDER_LIST = "order_list"
+    private lateinit var prefs: SharedPreferences
+    private val gson = Gson()
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        
+        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        // 1. 뷰 초기화
+        initViews()
+        // 2. 리사이클러뷰 및 어댑터 초기화
+        setupRecyclerView()
+        // 3. 저장된 리스트 불러오고 어댑터 갱신
+        loadOrderList()
+        orderAdapter.notifyDataSetChanged()
         
         // 애드몹 초기화
         MobileAds.initialize(this) {}
@@ -45,8 +62,6 @@ class MainActivity : AppCompatActivity() {
         val adRequest = AdRequest.Builder().build()
         adView.loadAd(adRequest)
         
-        initViews()
-        setupRecyclerView()
         setupClickListeners()
         setupDragAndDrop()
     }
@@ -56,6 +71,7 @@ class MainActivity : AppCompatActivity() {
         if (::adView.isInitialized) {
             adView.pause()
         }
+        saveOrderList()
     }
 
     override fun onResume() {
@@ -284,6 +300,22 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "다운로드 폴더에 이미지로 저장됨: ${file.absolutePath}", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             Toast.makeText(this, "이미지 저장 실패: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun saveOrderList() {
+        val json = gson.toJson(items)
+        prefs.edit().putString(KEY_ORDER_LIST, json).apply()
+    }
+
+    private fun loadOrderList() {
+        val json = prefs.getString(KEY_ORDER_LIST, null)
+        if (!json.isNullOrEmpty()) {
+            val type = object : TypeToken<MutableList<OrderItem>>() {}.type
+            val loaded = gson.fromJson<MutableList<OrderItem>>(json, type)
+            items.clear()
+            items.addAll(loaded)
+            nextId = (items.maxOfOrNull { it.id } ?: 0) + 1
         }
     }
 }
