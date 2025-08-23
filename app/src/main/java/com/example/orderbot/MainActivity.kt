@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 
 class MainActivity : AppCompatActivity() {
     
@@ -15,6 +18,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var buttonAdd: Button
     private lateinit var recyclerViewItems: RecyclerView
     private lateinit var orderAdapter: OrderAdapter
+    private lateinit var adView: AdView
     
     private val items = mutableListOf<OrderItem>()
     private var nextId = 1
@@ -23,10 +27,37 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         
+        // 애드몹 초기화
+        MobileAds.initialize(this) {}
+        adView = findViewById(R.id.adView)
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
+        
         initViews()
         setupRecyclerView()
         setupClickListeners()
         setupDragAndDrop()
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        if (::adView.isInitialized) {
+            adView.pause()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::adView.isInitialized) {
+            adView.resume()
+        }
+    }
+
+    override fun onDestroy() {
+        if (::adView.isInitialized) {
+            adView.destroy()
+        }
+        super.onDestroy()
     }
     
     private fun initViews() {
