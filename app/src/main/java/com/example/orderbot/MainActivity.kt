@@ -11,6 +11,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
+import android.content.Context
+import java.io.File
+import java.io.FileOutputStream
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.app.AlertDialog
+import android.os.Environment
+import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
     
@@ -19,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerViewItems: RecyclerView
     private lateinit var orderAdapter: OrderAdapter
     private lateinit var adView: AdView
+    private lateinit var buttonExport: Button
     
     private val items = mutableListOf<OrderItem>()
     private var nextId = 1
@@ -64,6 +76,7 @@ class MainActivity : AppCompatActivity() {
         editTextItem = findViewById(R.id.editTextItem)
         buttonAdd = findViewById(R.id.buttonAdd)
         recyclerViewItems = findViewById(R.id.recyclerViewItems)
+        buttonExport = findViewById(R.id.buttonExport)
     }
     
     private fun setupRecyclerView() {
@@ -160,6 +173,9 @@ class MainActivity : AppCompatActivity() {
         buttonAdd.setOnClickListener {
             addItem()
         }
+        buttonExport.setOnClickListener {
+            showExportTypeDialog()
+        }
     }
     
     private fun addItem() {
@@ -199,5 +215,75 @@ class MainActivity : AppCompatActivity() {
         orderAdapter.notifyDataSetChanged()
         
         Toast.makeText(this, "'${deletedItem.text}' 항목이 삭제되었습니다", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun exportOrderListToFile() {
+        if (items.isEmpty()) {
+            Toast.makeText(this, "저장할 항목이 없습니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val text = items.sortedBy { it.order }
+            .joinToString(separator = "\n") { "${it.order + 1}. ${it.text}" }
+        try {
+            val fileName = "order_list.txt"
+            val downloadsDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            val file = File(downloadsDir, fileName)
+            file.writeText(text)
+            Toast.makeText(this, "다운로드 폴더에 저장됨: ${file.absolutePath}", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "저장 실패: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun showExportTypeDialog() {
+        val options = arrayOf("텍스트(.txt)로 저장", "이미지(.png)로 저장")
+        AlertDialog.Builder(this)
+            .setTitle("내보내기 형식 선택")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> exportOrderListToFile()
+                    1 -> exportOrderListToImage()
+                }
+            }
+            .show()
+    }
+
+    private fun exportOrderListToImage() {
+        if (items.isEmpty()) {
+            Toast.makeText(this, "저장할 항목이 없습니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val sortedItems = items.sortedBy { it.order }
+        val paint = Paint().apply {
+            color = Color.BLACK
+            textSize = 48f
+            isAntiAlias = true
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        }
+        val padding = 40
+        val lineSpacing = 32
+        val lines = sortedItems.mapIndexed { i, item -> "${i + 1}. ${item.text}" }
+        val maxWidth = lines.maxOf { paint.measureText(it).toInt() } + padding * 2
+        val lineHeight = (paint.fontMetrics.bottom - paint.fontMetrics.top).toInt() + lineSpacing
+        val height = lineHeight * lines.size + padding * 2
+        val bitmap = Bitmap.createBitmap(maxWidth, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        canvas.drawColor(Color.WHITE)
+        var y = padding - paint.fontMetrics.top
+        for (line in lines) {
+            canvas.drawText(line, padding.toFloat(), y, paint)
+            y += lineHeight
+        }
+        try {
+            val fileName = "order_list.png"
+            val downloadsDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            val file = File(downloadsDir, fileName)
+            FileOutputStream(file).use { fos ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+            }
+            Toast.makeText(this, "다운로드 폴더에 이미지로 저장됨: ${file.absolutePath}", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "이미지 저장 실패: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+        }
     }
 }
